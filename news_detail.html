@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ news.title }}</h2>
+  <img src="{{ news.image.url }}" alt="{{ news.title }}">
+  <p>{{ news.detail }}</p>
+
+  <button class="like-btn" data-news-id="{{ news.pk }}">Like</button>
+  <button class="share-btn" data-news-id="{{ news.pk }}">Share</button>
+
+  <h3>Comments</h3>
+  <ul>
+    {% for comment in comments %}
+      <li>{{ comment.name }} - {{ comment.comment }}</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post" id="commentForm">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Your Name">
+    <input type="email" name="email" placeholder="Your Email">
+    <textarea name="comment" placeholder="Your Comment"></textarea>
+    <button type="submit">Submit Comment</button>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var likeBtn = document.querySelector(".like-btn");
+      likeBtn.addEventListener("click", function() {
+        var newsId = this.getAttribute("data-news-id");
+        likeNews(newsId);
+      });
+
+      var shareBtn = document.querySelector(".share-btn");
+      shareBtn.addEventListener("click", function() {
+        var newsId = this.getAttribute("data-news-id");
+        shareNews(newsId);
+      });
+
+      document.getElementById("commentForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        var newsId = likeBtn.getAttribute("data-news-id");
+        addComment(newsId);
+      });
+
+      function likeNews(newsId) {
+        fetch(`/news/${newsId}/like/`, { method: "POST" })
+          .then(response => response.json())
+          .then(data => console.log(data));  // Handle the response as needed
+      }
+
+      function shareNews(newsId) {
+        fetch(`/news/${newsId}/share/`, { method: "POST" })
+          .then(response => response.json())
+          .then(data => console.log(data));  // Handle the response as needed
+      }
+
+      function addComment(newsId) {
+        var formData = new FormData(document.getElementById("commentForm"));
+        fetch(`/news/${newsId}/comment/`, { method: "POST", body: formData })
+          .then(response => response.json())
+          .then(data => console.log(data));  // Handle the response as needed
+      }
+    });
+  </script>
+{% endblock %}

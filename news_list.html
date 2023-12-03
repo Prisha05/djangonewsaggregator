@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>News List</h2>
+  <ul>
+    {% for news in news_list %}
+      <li>
+        <a href="{% url 'news_detail' pk=news.pk %}">{{ news.title }}</a>
+        <button class="like-btn" data-news-id="{{ news.pk }}">Like</button>
+        <button class="share-btn" data-news-id="{{ news.pk }}">Share</button>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var likeBtns = document.querySelectorAll(".like-btn");
+      likeBtns.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var newsId = this.getAttribute("data-news-id");
+          likeNews(newsId);
+        });
+      });
+
+      var shareBtns = document.querySelectorAll(".share-btn");
+      shareBtns.forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var newsId = this.getAttribute("data-news-id");
+          shareNews(newsId);
+        });
+      });
+
+      function likeNews(newsId) {
+        fetch(`/news/${newsId}/like/`, { method: "POST" })
+          .then(response => response.json())
+          .then(data => console.log(data));  // Handle the response as needed
+      }
+
+      function shareNews(newsId) {
+        fetch(`/news/${newsId}/share/`, { method: "POST" })
+          .then(response => response.json())
+          .then(data => console.log(data));  // Handle the response as needed
+      }
+    });
+  </script>
+{% endblock %}
